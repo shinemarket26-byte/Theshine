@@ -88,7 +88,32 @@ function rupiah(number){return "Rp " + Number(number).toLocaleString("id-ID");}
 function getPrice(robux){return Number(robux) * CONFIG.pricePerRobux;}
 function showToast(message){const toast=$("toast");if(!toast)return;toast.textContent=message;toast.classList.add("show");clearTimeout(window.__shineToast);window.__shineToast=setTimeout(()=>toast.classList.remove("show"),2600);}
 function renderProducts(){const grid=$("productGrid");if(!grid)return;grid.innerHTML=PRODUCTS.map((product,index)=>`<article class="product" style="animation-delay:${index*55}ms"><div class="ptop"><div class="ricon">✦</div><span class="status ${product.available?"av":"off"}">${product.available?"● Ready":"● Habis"}</span></div><h3>${product.robux.toLocaleString("id-ID")} <span class="unit">R$</span></h3><div class="pprice">${rupiah(getPrice(product.robux))}</div><button class="pbtn" ${product.available?"":"disabled"} onclick="selectPreset(${product.robux})">${product.available?"Pilih paket ♡":"Stok habis"}</button></article>`).join("");$("customAmount").min=MIN_ROBUX;$("customAmount").max=MAX_ROBUX;$("customAmount").placeholder=`${MIN_ROBUX}–${MAX_ROBUX} Robux`;}
-function setSelectedAmount(amount){const value=Number(amount);if(!Number.isInteger(value)||value<MIN_ROBUX||value>MAX_ROBUX){showToast(`Nominal custom harus ${MIN_ROBUX}–${MAX_ROBUX} Robux.`);return false;}selectedAmount=value;$("selectedAmount").textContent=value.toLocaleString("id-ID")+" Robux";$("selectedRate").textContent=rupiah(CONFIG.pricePerRobux);$("selectedTotal").textContent=rupiah(getPrice(value));$("selectedBox").classList.add("show");return true;}
+   
+function setSelectedAmount(amount){
+  const value = Number(amount);
+
+  if (
+    !Number.isInteger(value) ||
+    value < CONFIG.minCustomRobux ||
+    value > CONFIG.maxCustomRobux ||
+    value % CONFIG.customStep !== 0
+  ) {
+    showToast("Nominal harus kelipatan 10 Robux (10–500).");
+    return false;
+  }
+
+  selectedAmount = value;
+  $("selectedAmount").textContent =
+    value.toLocaleString("id-ID") + " Robux";
+  $("selectedRate").textContent =
+    rupiah(CONFIG.pricePerRobux);
+  $("selectedTotal").textContent =
+    rupiah(getPrice(value));
+  $("selectedBox").classList.add("show");
+
+  return true;
+}
+   
 function selectPreset(amount){const product=PRODUCTS.find(p=>p.robux===Number(amount));if(!product||!product.available){showToast("Paket ini sedang habis.");return;}if(!setSelectedAmount(amount))return;showToast(`${Number(amount).toLocaleString("id-ID")} Robux dipilih ♡`);$("selectedBox").scrollIntoView({behavior:"smooth",block:"center"});}
 function selectCustom(){if(!setSelectedAmount($("customAmount").value))return;showToast("Nominal custom dipilih ✨");}
 $("customAmount").addEventListener("keydown",e=>{if(e.key==="Enter")selectCustom();});
