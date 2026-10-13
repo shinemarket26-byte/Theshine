@@ -32,10 +32,19 @@ export default async function handler(req, res) {
 
     const searchResponse = await fetch(searchURL);
 
-    if (!searchResponse.ok) {
-      throw new Error("Roblox User API error");
-    }
+if (!searchResponse.ok) {
+  const detail = await searchResponse.text();
 
+  console.error("Roblox API status:", searchResponse.status);
+  console.error("Roblox API detail:", detail);
+
+  return res.status(502).json({
+    success: false,
+    message: "Roblox API gagal merespons.",
+    status: searchResponse.status,
+    detail: detail.slice(0, 300)
+  });
+}
     const searchData = await searchResponse.json();
     const users = searchData.data || [];
 
